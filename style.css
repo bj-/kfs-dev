@@ -1,0 +1,148 @@
+/*
+Theme Name: kfs-dev
+Theme URI: 
+Author: KIrilloff Studio
+Author URI: 
+Description: KIrilloff Studio universal simple Theme
+Requires at least: 6.9
+Tested up to: 6.9
+Requires PHP: 7.4
+Version: 
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: kfs
+Tags: 
+*/
+
+/* Fonts */
+@font-face {
+  font-family: "Montserrat";
+  font-style: normal;
+  font-weight: normal;
+  src: url("/fonts/Montserrat-Regular.ttf");
+}
+@font-face {
+  font-family: "YsabeauInfant";
+  font-style: normal;
+  font-weight: normal;
+  src: url("/fonts/YsabeauInfant-Regular.ttf");
+}
+@font-face {
+  font-family: "EducationalGothic";
+  font-style: normal;
+  font-weight: normal;
+  src: url("/fonts/EducationalGothic-Regular.otf");
+}
+@font-face {
+  font-family: "Cruinn";
+  font-style: normal;
+  font-weight: normal;
+  src: url("/fonts/Cruinn-Regular.ttf");
+}
+
+
+
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+/* GENERAL STYLES */
+
+#page {
+	/* display: flex;
+    flex-direction: column;
+    align-items: center; */
+	& header {
+		width: 100%;
+		margin: auto;
+	}
+	& main {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		& * { overflow-wrap: break-word; }
+	}
+	& footer {
+		width: 100%;
+		margin: auto;
+	}
+}
+
+.button_color {background: #eadc9e; !important;}
+.btn-active { color: #eadc9e !important; border-color: #eadc9e !important; }
+.bg_color {background: #041204; !important;}
+.border_color {border-color:#eadc9e; !important;}
+
+.img_label_font {font-family:"YsabeauInfant";}
+.img_gradient {background: linear-gradient(to bottom, rgba(29,33,22, 0.0) 75%, rgba(29,33,22, 0.3) 80%, rgba(29,33,22, 1) 100%);}
+
+/* Fonts */
+.font-num {font-family:"YsabeauInfant";}
+.font-title {font-family:"YsabeauInfant";}
+.font-text {font-family:"Montserrat";}
+
+/* BASIC STYLES */
+body,p,span,a, button, input {font-family: "Montserrat" !important;}
+body { margin: 0px; /* margin-top: -13px;*/}
+h1,h2,h3,h4,h5,h6 {font-family:"YsabeauInfant"; color:white;}
+* { margin:0px; padding: 0px; }
+
+.nowrap {width:100%;}
+.wrap {width:100%; max-width:1700px; margin:auto; }
+.wide {width:100%;}
+.nowide {width:100%; max-width:1700px; margin:auto; }
+.block_gap { height: clamp(50px, 5.9vw, 150px);}
+.curspointer {cursor:pointer;}
+
+/* show/hide som div */
+.block-active-menu {height:100vh !important; transition:1s;}
+.block-inactive-menu {height:0 !important; transition:1s;}
+
+.w100h100p{ width: 100%; height: 100%; }
+.margintop20 {margin-top:20px;}
+
+/* Title styles */
+.color_linear { background-image: linear-gradient(to right, #0196F5, #0DFF84); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+
+/* Slick slide */
+.slick-prev:before, .slick-next:before {
+    font-size: 20px;
+    line-height: 1;
+    opacity: .75;
+    color: white;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+	font-size: 60px !important;
+    font-weight: 900;
+	font-family: "Montserrat" !important;
+}
+.slick-next:before {
+    content: '›' !important;
+}
+.slick-prev:before {
+    content: '‹' !important;
+}
+
+/* WOW */
+/* Сброс анимации WOW на мобильных устройствах - заголовки всегда видны */
+/*
+html.is-mobile .wow {
+    visibility: visible !important;
+    animation-name: none !important;
+    opacity: 1 !important;
+}
+
+html.is-mobile .animated {
+    animation: none !important;
+    transition: none !important;
+}
+*/
+
+/* Mobile breakpoint */
+/* скорее всего ненужно */
+@media (max-width: 1000px) {
+	.cf7-form1 { /* flex-direction: column; */ }
+	.cf7-form1 > div:nth-child(1n) { /* min-width: 216px; */ }
+	.cf7-form1 > div:nth-child(2n) { /* width: 65%; min-width: 216px; */ }
+}

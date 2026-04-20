@@ -12,7 +12,7 @@
 					removalMode: true,
 					drawMarker: false,
 					drawCircleMarker: false,
-					drawPolyline: false,
+					drawPolyline: true,  // Включено для рисования линий
 					drawCircle: false,
 					drawRectangle: false
 					*/
@@ -42,7 +42,24 @@
 						return coords.join(',');
 					}
 
-					// === 1. Создание полигона ИЛИ маркера ===
+					// === Функция получения координат полилинии в L.CRS.Simple ===
+					function getPolylineCoords(layer) {
+						if (!(layer instanceof L.Polyline)) return '';
+						
+						// В L.CRS.Simple: lat = Y, lng = X
+						const latlngs = layer.getLatLngs();
+						
+						// Формируем массив [X, Y] где X=lng, Y=lat
+						const coords = latlngs.map(ll => {
+							const x = Math.round(ll.lng); // X координата
+							const y = Math.round(ll.lat); // Y координата
+							return `[${x},${y}]`;
+						});
+						
+						return coords.join(',');
+					}
+
+					// === 1. Создание полигона, маркера ИЛИ полилинии ===
 					map.on('pm:create', function(e) {
 						if (e.layer instanceof L.Polygon) {
 							const coords = getPolygonCoords(e.layer);
@@ -52,12 +69,21 @@
 							e.layer.on('pm:remove', clearCoords);
 							e.layer._coords = coords;
 						}
-						// === НОВОЕ: Обработка создания маркера ===
+						// === Обработка создания маркера ===
 						else if (e.layer instanceof L.Marker) {
 							const coords = getMarkerCoords(e.layer);
 							polyCoordsInput.value = coords;
 							console.log('✅ Маркер создан:', coords);
 							e.layer.on('pm:edit', updateMarkerCoords);
+							e.layer.on('pm:remove', clearCoords);
+							e.layer._coords = coords;
+						}
+						// === Обработка создания полилинии (линии) ===
+						else if (e.layer instanceof L.Polyline) {
+							const coords = getPolylineCoords(e.layer);
+							polyCoordsInput.value = coords;
+							console.log('✅ Линия создана:', coords);
+							e.layer.on('pm:edit', updatePolylineCoords);
 							e.layer.on('pm:remove', clearCoords);
 							e.layer._coords = coords;
 						}
@@ -73,7 +99,7 @@
 						}
 					}
 
-					// === НОВОЕ: 2. Редактирование маркера ===
+					// === Редактирование маркера ===
 					function updateMarkerCoords(e) {
 						if (e.layer instanceof L.Marker) {
 							const coords = getMarkerCoords(e.layer);
@@ -83,20 +109,32 @@
 						}
 					}
 
-					// Подписываем маркеры на событие редактирования
+					// === Редактирование полилинии (линии) ===
+					function updatePolylineCoords(e) {
+						if (e.layer instanceof L.Polyline) {
+							const coords = getPolylineCoords(e.layer);
+							polyCoordsInput.value = coords;
+							e.layer._coords = coords;
+							console.log('✏️ Линия отредактирована:', coords);
+						}
+					}
+
+					// Подписываем маркеры и полилинии на событие редактирования
 					map.on('pm:edit', function(e) {
 						if (e.layer instanceof L.Marker) {
 							updateMarkerCoords(e);
 						} else if (e.layer instanceof L.Polygon) {
 							updateCoords(e);
+						} else if (e.layer instanceof L.Polyline) {
+							updatePolylineCoords(e);
 						}
 					});
 
 					map.on('pm:edit', updateCoords);
 
-					// === 3. Удаление полигона ИЛИ маркера ===
+					// === 3. Удаление полигона, маркера ИЛИ полилинии ===
 					function clearCoords(e) {
-						if (e.layer instanceof L.Polygon || e.layer instanceof L.Marker) {
+						if (e.layer instanceof L.Polygon || e.layer instanceof L.Marker || e.layer instanceof L.Polyline) {
 							polyCoordsInput.value = '';
 							console.log('🗑️ Объект удалён');
 						}

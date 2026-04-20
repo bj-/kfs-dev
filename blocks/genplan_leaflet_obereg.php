@@ -1,24 +1,25 @@
 <!-- Block: <?= $bUID; ?>, template: <?= $block["template"]; ?> -- START -->
 <?php
-$dev = (@$_GET["dev"] == "yep") ? TRUE : FALSE;
+$dev = ($_SERVER['SERVER_NAME'] == "kfs-dev" or @$_GET["dev"] == "yep") ? TRUE : FALSE;
 //$dev = FALSE;
 
 $genplan_areas = convertToLeafletArrayPlace($block["areas"], $block["view"]["shift"], $block["area_prefix"]);
 $genplan_poi = convertToLeafletArrayPOI($block["poi"], $block["view"]["shift"]);
 $genplan_orders = convertToLeafletArrayOrders($block["orders"], $block["view"]["shift"]);
-$genplan_lines = convertToLeafletArrayLines($block["lines"], $block["view"]["shift"]);
-
-
-echo "<pre>genplan_lines\n"; var_dump($genplan_lines); echo "</pre>";
 
 if ($dev) 
 {
+	$genplan_lines = convertToLeafletArrayLines($block["lines"], $block["view"]["shift"]);
+
 	echo '
 	<link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.css">
 	<script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script>
 	';
+
+	//echo "<pre>genplan_lines\n"; var_dump($genplan_lines); echo "</pre>";
+	echo "<pre>block[settings]\n"; var_dump($block["settings"]); echo "</pre>";
 }
- //echo "<pre>block\n"; var_dump($block); echo "</pre>";
+//if ( $dev ) { echo "<pre>block\n"; var_dump($block); echo "</pre>"; }
 ?>
 <style>
 #<?= $bUID; ?> { 
@@ -199,7 +200,7 @@ if ($dev)
 		gap: 5px;
 		box-shadow: 0 1px 5px rgba(0,0,0,0.4);
 	}
-
+	
 	/* Общий стиль кнопки */
 	& .nav-btn {
 		background: #fff;
@@ -737,6 +738,7 @@ var isLegendShown = false; // ===== открыто описание легенд
         }
     }
 
+
 	// шаблоны попав - подключем необходимые шаблоны
 <?php
 	function processPopupsRecursive($array, $template_dir, $bUID, $prefix = '')
@@ -792,6 +794,9 @@ var isLegendShown = false; // ===== открыто описание легенд
 			case 'poi':
 				key = type;
 				break;
+			case 'line':
+				key = type;
+				break;
 		}
 
 		// Получаем имя функции из массива popupTemplates
@@ -812,7 +817,8 @@ var isLegendShown = false; // ===== открыто описание легенд
     const plots = [];
     
     // Функция добавления участка на карту
-    function addPlot(data, type) {
+    function addPlot(data, type, thickness) {
+		//console.log(thickness);
         // Координаты:
         const coordsMap = data.coords.map(point => [
             (point[1]),                // X 
@@ -822,7 +828,7 @@ var isLegendShown = false; // ===== открыто описание легенд
         // Создаем многоугольник с белой рамкой 1px
         const polygon = L.polygon(coordsMap, {
             color: 'white',      // белая рамка
-            weight: 1,           // толщина рамки 1px
+            weight: thickness, //1 // thickness,           // толщина рамки 1px
             fillColor: getColor(data.status),
             //fillOpacity: 0.10
             fillOpacity: 1
@@ -987,7 +993,8 @@ var isLegendShown = false; // ===== открыто описание легенд
 <?php if ( is_array($genplan_areas) ) : ?>
     plotData.forEach(plot => {
         if (plot.coords && plot.coords.length > 0) {
-            addPlot(plot, 'place');
+			//console.log('thickness: <?= $block["settings"]["lines"]["place"]["thickness"] ?>');
+            addPlot(plot, 'place', <?= $block["settings"]["lines"]["place"]["thickness"] ?>); 
         }
     });
 <?php endif; ?>
@@ -996,7 +1003,7 @@ var isLegendShown = false; // ===== открыто описание легенд
 <?php if ( is_array($genplan_orders) ) : ?>
     plotDataOrders.forEach(plot => {
         if (plot.coords && plot.coords.length > 0) {
-            addPlot(plot, 'order');
+            addPlot(plot, 'order', <?= $block["settings"]["lines"]["orders"]["thickness"] ?>);
         }
     });
 <?php endif; ?>
@@ -1202,6 +1209,148 @@ var isLegendShown = false; // ===== открыто описание легенд
 			addInfrastructureIcon(icon);
 		});
 <?php endif; ?>
+
+
+
+	function rgbaToHex(r, g, b, a = 1) {
+		const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
+		const toHex = (val) => Math.round(val).toString(16).padStart(2, '0');
+
+		const hex = `#${toHex(clamp(r, 0, 255))}${toHex(clamp(g, 0, 255))}${toHex(clamp(b, 0, 255))}`;
+
+		// Return 8-digit HEX if there's transparency
+		if (a < 1) {
+			const alphaHex = toHex(clamp(a * 255, 0, 255));
+			return `${hex}${alphaHex}`;
+		}
+		return hex;
+	}
+	function parseRgbaToHex(rgbaString) {
+		const match = rgbaString.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)/);
+		if (!match) throw new Error("Invalid RGBA string");
+	  
+		return rgbaToHex(+match[1], +match[2], +match[3], +match[4] || 1);
+	}	
+
+
+	// ===== ДОБАВЛЕНИЕ ЛИНИЙ НА КАРТУ =====
+	<?php if ( !empty($genplan_lines) ) : ?>
+	const linesData = <?= json_encode($genplan_lines, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+
+	// Функция добавления линии (аналогична addPlot)
+	function addGenplanLine(line) {
+		// Конвертация координат: [Y, X] → [X, Y] для Leaflet CRS.Simple
+		// Точно так же, как в convertToLeafletArrayPlace для полигонов
+		const coordsConverted = line.coords.map(point => [
+			point[1], // X → first (lng в CRS.Simple)
+			point[0]  // Y → second (lat в CRS.Simple)
+		]);
+		
+		// Создаём полилинию с базовыми стилями
+		//console.log(line.color);
+		//console.log(parseRgbaToHex(line.color));
+		const polyline = L.polyline(coordsConverted, {
+			color:   parseRgbaToHex(line.color), //'#2b74d3', // Можно вынести в настройки линии, если нужно
+			weight:  line.gage,
+			opacity: 0.85,
+			lineCap: 'round',
+			lineJoin: 'round'
+		}).addTo(map);
+		
+		/*
+		// Формируем контент попапа (используем существующую систему)
+		const popupContent = createPopupContent({
+			title: line.name || '',
+			description: line.desc || '',
+			id: line.ID || '',
+			status: line.status || 'not-available',
+			olink: line.olink || '',
+			gallery: line.gallery || false
+		}, 'line');
+		*/
+		
+		// Создаём попап с теми же настройками, что у полигонов
+		const popup = L.popup({
+			offset: L.point(0, -10),
+			closeButton: true,
+			autoClose: false,
+			closeOnClick: false,
+			className: 'genplan-line-popup'
+		//}).setContent(popupContent);
+		}).setContent(createPopupContent(line, 'line'));
+		
+		polyline._customPopup = popup;
+		
+		// === Обработчик клика — идентичен логике полигонов ===
+		polyline.on('click', function(e) {
+			L.DomEvent.stopPropagation(e);
+			const mapContainer = document.getElementById('<?=$bUID; ?>_map');
+			
+			// Если клик по той же линии с открытым попапом — закрываем
+			if (mapContainer?._currentOpenPopup?.layer === this) {
+				closeAnyOpenPopup();
+				return;
+			}
+			
+			// Закрываем любой другой открытый попап
+			closeAnyOpenPopup();
+			
+			isPopupOpen = true;
+			setPopupElementsVisibility(true, elementsToHide);
+			
+			// Позиция попапа: точка клика или центр линии
+			const popupPosition = e?.latlng ? e.latlng : polyline.getBounds().getCenter();
+			map.openPopup(polyline._customPopup, popupPosition);
+			
+			// Сохраняем ссылку на активный попап
+			if (mapContainer) {
+				mapContainer._currentOpenPopup = {
+					popup: polyline._customPopup,
+					layer: polyline
+				};
+			}
+			
+			// Инициализация каруселей/слайдеров в попапе, если есть
+			const carouselContainers = document.querySelectorAll(".genplan-line-carousel");
+			carouselContainers.forEach((container) => {
+				if (container.id && typeof miniCarouselInit === 'function') {
+					miniCarouselInit(container.id);
+				}
+			});
+		});
+		
+		// === Обработчик закрытия попапа ===
+		popup.on('remove', function() {
+			const mapContainer = document.getElementById('<?=$bUID; ?>_map');
+			if (!mapContainer?._currentOpenPopup || mapContainer._currentOpenPopup.popup === this) {
+				isPopupOpen = false;
+				setPopupElementsVisibility(true, elementsToHide);
+			}
+			if (mapContainer && mapContainer._currentOpenPopup?.popup === this) {
+				mapContainer._currentOpenPopup = null;
+			}
+		});
+		
+		// === Опционально: подсветка при наведении ===
+		polyline.on('mouseover', function() {
+			this.setStyle({ weight: (line.gage), opacity: 1, color: parseRgbaToHex(line.color) });
+		});
+		polyline.on('mouseout', function() {
+			this.setStyle({ weight: line.gage, opacity: 0.85, color: parseRgbaToHex(line.color) });
+		});
+		
+		return polyline;
+	}
+
+	// Добавляем все линии на карту
+	linesData.forEach(line => {
+		if (line.coords && Array.isArray(line.coords) && line.coords.length >= 2) {
+			addGenplanLine(line);
+		}
+	});
+	<?php endif; ?>
+	// ===== КОНЕЦ ДОБАВЛЕНИЯ ЛИНИЙ =====
+
 })();
 <?php else: ?>
 // No data in array $block[img]. Leaflet function removed
@@ -1484,12 +1633,14 @@ window.addEventListener('orientationchange', adjustLegendForIOS);
 <?php
 if ( $dev ) 
 { 
+/*
 echo '<div style="position:absolute; width: 500px; height 500px; z-index:10000;top: 200px;
     left: 200px;
     background: brown;
     color: black;">';
 echo do_shortcode('[contact-form-7 id="ebda539" title="Тест"]');
 echo '</div>';
+*/
 } ?>
 
 

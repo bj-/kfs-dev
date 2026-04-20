@@ -666,6 +666,47 @@ function convert_coords($coords)  // TO BE DELETE
 	
 	return $ret;
 }
+function convertToLeafletArrayLines ($area, $shift)
+{
+
+	if (! is_array($area) )
+	{
+		return array(); // возвращаем пустой массив если нет данных для конвертации
+	}
+	
+	foreach ($area as $key => $item)
+	{
+		$id = 'order' . $key;
+		$name = $item["object"]["ids"]["name"];
+		$status = $item["object"]["ids"]["status"];
+		$desc = $item["object"]["ids"]["desc"];
+		$link = $item["object"]["link"];
+		$gallery = $item["object"]["gallery"];
+		$ico = $item["object"]["ico"];
+		
+
+		$active = $item["object"]["ids"]["active"]; // показывать на карте
+		
+		$coords = convertToLeafletCoords($item["object"]["coord"], $shift, "poly");
+
+		if ($active)
+		{
+			// Итоговый сконвертированный массив для Леафлета
+			$ret[] = array(
+				"ID" => $id,
+				"ico" => $ico,
+				"name" => $name,
+				"status" => $status,
+				"desc" => $desc,
+				"olink" => $link,
+				"gallery" => $gallery,
+				"coords" => $coords
+			);	
+		};
+	}
+	return $ret;	
+}
+
 // Leaflet functions END
 
 

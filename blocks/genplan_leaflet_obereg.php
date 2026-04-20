@@ -1,11 +1,15 @@
 <!-- Block: <?= $bUID; ?>, template: <?= $block["template"]; ?> -- START -->
 <?php
-$dev = ($_SERVER['SERVER_NAME'] == "kfs-dev" or @$_GET["dev"] == "yep") ? TRUE : FALSE;
+$dev = (@$_GET["dev"] == "yep") ? TRUE : FALSE;
 //$dev = FALSE;
 
 $genplan_areas = convertToLeafletArrayPlace($block["areas"], $block["view"]["shift"], $block["area_prefix"]);
 $genplan_poi = convertToLeafletArrayPOI($block["poi"], $block["view"]["shift"]);
 $genplan_orders = convertToLeafletArrayOrders($block["orders"], $block["view"]["shift"]);
+$genplan_lines = convertToLeafletArrayLines($block["lines"], $block["view"]["shift"]);
+
+
+echo "<pre>genplan_lines\n"; var_dump($genplan_lines); echo "</pre>";
 
 if ($dev) 
 {
@@ -14,7 +18,7 @@ if ($dev)
 	<script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script>
 	';
 }
-//if ( $dev ) { echo "<pre>block\n"; var_dump($block); echo "</pre>"; }
+ //echo "<pre>block\n"; var_dump($block); echo "</pre>";
 ?>
 <style>
 #<?= $bUID; ?> { 

@@ -1,6 +1,6 @@
 <!-- Block: <?= $bUID; ?>, template: <?= $block["template"]; ?> -- START -->
 <?php
-$dev = ($_SERVER['SERVER_NAME'] == "kfs-dev" or $_GET["dev"] == "yep") ? TRUE : FALSE;
+$dev = ($_SERVER['SERVER_NAME'] == "kfs-dev" or @$_GET["dev"] == "yep") ? TRUE : FALSE;
 //$dev = FALSE;
 
 $genplan_areas = convertToLeafletArrayPlace($block["areas"], $block["view"]["shift"], $block["area_prefix"]);
@@ -14,6 +14,7 @@ if ($dev)
 	<script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script>
 	';
 }
+//if ( $dev ) { echo "<pre>block\n"; var_dump($block); echo "</pre>"; }
 ?>
 <style>
 #<?= $bUID; ?> { 
@@ -37,7 +38,11 @@ if ($dev)
 	& .legend, 
 		& .info-panel { position: absolute !important; z-index: 1; backdrop-filter: blur(5px); border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: clamp(2px, 1vw, 10px); border: 1px solid #e0e0e0; pointer-events: auto; background-color: <?= setAlpha($bender_settings["colors"]["site"]["bg"], 0.5) ?>; }
 
-	& .legend { bottom: clamp(2px, 1.5vw, 20px); right: clamp(2px, 5vw, 20px); line-height: 14px; font-weight: 500; cursor: default; display: flex; gap: clamp(5px, 2vw, 20px); flex-wrap: wrap; margin-left: 45px; }
+	& .legend { 
+		bottom: clamp(2px, 1.5vw, 20px); right: clamp(2px, 5vw, 20px); line-height: 14px; font-weight: 500; cursor: default; 
+		display: flex; gap: clamp(5px, 2vw, 20px); flex-wrap: wrap; margin-left: 45px; 
+		/* padding-bottom: env(safe-area-inset-bottom, 0px); */
+	}
 
 	/* Инфопанель */
     & .info-panel.collapsed > ul { display: none; }
@@ -77,6 +82,13 @@ if ($dev)
 	& .legend-text { font-weight: lighter; transition: all 0.2s; font-size: clamp(12px, 2vw, 18px); }
 
 	/* Стили попапов */
+	
+	& .leaflet-popup-close-button {
+		font: 30px / 24px Tahoma, Verdana, sans-serif;
+		top: 2px;
+		right: 5px;
+	}
+	
 	& .leaflet-popup-content {
 	margin-top: clamp(5px, 3vw, 13px);
     margin-right: clamp(5px, 3vw, 24px);
@@ -108,23 +120,66 @@ if ($dev)
 		& .popup-content .interior-link:hover { text-decoration: underline; }
 		
 	& .popup-status { display: flex; justify-content: space-between; gap: 10px; align-items: center; height: 18px;}
-	& .popup-prop { display: flex; flex-direction: column; gap: 3px; }
-	& .popup-content .label { font-weight:bold; font-size: 13px; }
-	& .popup-content .value { margin-left: 5px; font-weight: normal; }
 
-	& .popup-img,
-		& .popup-poi-img { position: relative; height: clamp(150px, 22vw, 200px); background-size: cover !important; background-position: center !important; }
-	& .popup-content .img-fade { position: absolute; width:100%; height:100% }
-	& .popup-content .img-label { position: absolute; bottom: 5px; left: 15px; color: white; font-size: 26px;}
+
+	& .popup-content {
+		& .popup-prop {
+			display: flex; flex-direction: column; gap: 3px;
+			
+			& .label { font-weight:bold; font-size: 13px; }
+			& .value { margin-left: 5px; font-weight: normal; }
+		}
+		& .popup-img {
+			position: relative; height: clamp(150px, 22vw, 200px); background-size: cover !important; background-position: center !important;
+			& .link {
+				display: block;
+				width: 100%;
+				height: 100%;
+			}
+		}
+		& .img-fade { 
+			position: absolute; width:100%; height:100% 
+		}
+		& .img-label { 
+			position: absolute; bottom: 5px; left: 15px; color: white; font-size: 26px;
+			& .link {
+				color: white;
+			}
+		}
+	}
 
 	& .area_gallery_item { height:200px;  background-size: cover !important; background-position: center !important; }
 
 	/* Popup POI */
-	& .popup-poi-content { width: clamp(200px, 80vw, 250px); }
-	& .popup-poi-content-short { width: fit-content; }
-	& .popup-poi-title {}
-	& .popup-poi-desc {}
-	& .popup-poi-img { width: 100%; min-width: clamp(150px, 80vw, 250px); }
+	& .popup-poi-content { width: clamp(200px, 80vw, 250px); 
+		& .popup-poi-title {
+			margin-right: 18px;
+		}
+		& .popup-poi-desc {
+			font-size: 14px; 
+			& .desc { }
+		}
+		& .popup-poi-img { 
+			position: relative; 
+			height: clamp(150px, 22vw, 200px); 
+			background-size: cover !important; background-position: center !important; 
+			width: 100%; 
+			/* min-width: clamp(150px, 80vw, 250px); */
+			& .link {
+				display: block;
+				width: 100%;
+				height: 100%;
+			}
+		}
+
+	}
+	& .popup-poi-content-short { 
+		width: fit-content; 
+		& .popup-poi-title {
+			margin-right: 18px;
+		}
+	}
+
 	& .popup-poi-content .img-label { position: absolute; bottom: 5px; left: 15px; color: white; font-size: 26px;}
 
 	/* нопки перемещения карты */
@@ -168,6 +223,17 @@ if ($dev)
 
 	/* remove logo */
 	& .leaflet-control-attribution > a { display:none; }
+	
+	/* Fancybox */
+	& .is-arrow {
+		color: rgb(255, 255, 255);
+		width: 30px;
+		height: 30px;
+		& svg {
+			stroke-width: 4px;
+			filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));			
+		}
+	}
 }
 
 /* Положение кнопок зума карты TODO. сделать как вариант навигации */
@@ -199,12 +265,12 @@ if ($dev)
 <?php if ( $block["view"]["page"] == "fullscreen" ) : ?>
 /* full viewport */
 #<?= $bUID; ?> {
-	width: 100vw; position: relative; margin:0; top: 100px; height: calc(100vh - 100px);
+	width: 100vw; position: fixed; margin:0; top: 0px; height: calc(100vh - 0px);
 	& .title, & .content { padding: 0; }
 	& .title { position: absolute; top: 0; margin-left:clamp(10px, 5vw, 50px); z-index: 500;}
 	& .title > h2 { margin: 0;}
 	& .content { height: 100%; }
-	& .info-panel { top: 20px; right: 60px;}
+	& .info-panel { top: 100px; right: 60px;}
 	& .legend { bottom: clamp(2px, 1.5vw, 20px); left: clamp(2px, 5vw, 20px); right: unset; margin-right: 100px; transition: all 0.1s}
 	& .map-bg { 
 		background: none; 
@@ -247,7 +313,9 @@ if ($dev)
 	}
 	& .btn {
 		padding: 0.35rem 1.6rem;
-		font-size: 18px;
+		/* font-size: 18px; */
+		font-size: clamp(12px, 3.5vw, 18px);
+		margin-right: 18px;
 	}
 }
 .footer { z-index: 500; }
@@ -259,6 +327,16 @@ if ($dev)
 		}
     }
 }
+
+@media (max-width: 768px) {
+	.back-btn {
+		top: 1.5rem;
+		padding-left: clamp(1px, 2vw, 14px);
+		z-index: 5;
+	}
+}
+/* Кастомизация Клиента FULL SCREEN -- END */
+
 <?php endif; ?>
 
 
@@ -281,11 +359,11 @@ if ($dev)
 		& .legend { left: clamp(1px, 0.5vw, 20px); margin-right: 100px; gap: clamp(1px, 0.2vw, 20px);}
 		& .legend-item-long { min-width: clamp(110px, 35vw, 200px); }
 		& .legend-item { min-width: clamp(110px, 35vw, 200px); }
-		& .popup-poi-content { width: clamp(200px, 80vw, 200px);
-    }
+		& .popup-poi-content { width: clamp(200px, 80vw, 200px);}
+	}
 }
 
-.ui-element--popup-open {
+	.ui-element--popup-open {
 		opacity: 0 !important;
 		transform: scale(0.98) !important;
 		pointer-events: none !important;
@@ -294,19 +372,122 @@ if ($dev)
 @media (max-width: 300px) {
     #<?= $bUID; ?> {
 		& .legend-item {
-			min-width: 150px;
+			min-width: 135px;
 		}
     }
 }
 
-</style>
+#<?= $bUID; ?> {
+	& .ios-bottom { bottom: 150px; }
 
+    & .ios-legend { 
+        width: 45px;
+        top: 100px;
+        right: 5px;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0; /* Убираем горизонтальные отступы, текст будет снаружи */
+        bottom: unset;
+        margin-right: unset;
+        justify-self: center;
+        margin-left: unset;
+        left: unset;
+        background-color: rgba(0,0,0,0.5);
+        backdrop-filter: blur(5px);
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        z-index: 5;
+
+        & .legend-item {
+            position: relative; /* Якорь для абсолютного позиционирования текста */
+            min-width: unset;
+            padding: 4px 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: row;
+            cursor: pointer;
+        }
+        
+        & .legend-color {
+            margin-right: unset;
+            flex-shrink: 0;
+        }
+        
+        & .legend-text {
+            /* Позиционирование слева от иконки */
+            position: absolute;
+            right: calc(100% + 8px); /* Отступ слева */
+            top: 50%;
+            transform: translateY(-50%) translateX(-10px);
+            white-space: nowrap;
+            z-index: 10;
+            
+            /* Стиль, идентичный контейнеру легенды */
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(224, 224, 224, 0.6);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 6px 12px;
+            
+            font-weight: normal;
+            font-size: clamp(14px, 3.5vw, 16px);
+            color: #fff;
+            
+            /* Состояние "скрыто" */
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            will-change: opacity, transform;
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+        }
+        
+        & .legend-text--visible {
+            /* Состояние "видимо" */
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(-50%) translateX(0);
+        }
+		& .legend-item.disabled .legend-text { opacity: 0.7; color: rgb(255, 255, 255); }
+	}
+}
+
+/* Специфично для iOS: увеличиваем отступ, если обнаружен Safari */
+@supports (-webkit-touch-callout: none) {
+    & .legend {
+        bottom: calc(clamp(2px, 1.5vw, 20px) + env(safe-area-inset-bottom, 0px) + 90px);
+    }
+    
+    /* На больших экранах iPad в ландшафте панель браузера меньше */
+    @media (min-width: 768px) and (orientation: landscape) {
+        & .legend {
+            bottom: calc(clamp(2px, 1.5vw, 20px) + env(safe-area-inset-bottom, 0px) + 60px);
+        }
+    }
+}
+
+/* Кастомизация страницы */
+<?= $block["custom"]["styles"];  ?>
+</style>
+<!-- <?php echo $_SERVER['REQUEST_URI'] ?> -->
+<?php if ($_SERVER['REQUEST_URI'] == "/genplan-village/" ): ?>
 <a href="/o-posjolke/" class="back-btn back-btn--blur">
 	<svg class="back-btn__arrow">
 		<use href="/wp-content/themes/obereg/wp-content/themes/assembling/static/images/sprite.svg#arrow-to-left"></use>
 	</svg>
 	О поселке
 </a>
+<?php else: ?>
+<a href="/genplan-village/" class="back-btn back-btn--blur">
+	<svg class="back-btn__arrow">
+		<use href="/wp-content/themes/obereg/wp-content/themes/assembling/static/images/sprite.svg#arrow-to-left"></use>
+	</svg>
+	Общий план
+</a>
+<?php endif; ?>
 	
 <div id="<?= $bUID; ?>" class="wide" style="<?= $block["bg_style"] ?>" >
 	<div class="fade">
@@ -317,7 +498,7 @@ if ($dev)
 		<div class="content">
 			<div id="<?= $bUID; ?>_map" class="map-bg bg-container"></div>
 			<!-- Легенда с фильтрацией (заменяет панель управления) -->
-			<div class="legend">
+			<div class="legend <?php if (@$_GET["test"] == "ios1" ) { echo "ios-legend"; } ?>">
 				<div class="legend-item active" data-status="available">
 					<span class="legend-color available"></span>
 					<span class="legend-text"><?= $block["status_name"]["available"] ?></span>
@@ -365,6 +546,8 @@ function isSmallScreen(){
 var map = null; // Объявляем map в глобальной области видимости
 var isPopupOpen = false; // ===== ГЛОБАЛЬНОЕ СОСТОЯНИЕ: открыт ли сейчас любой попап? =====
 var isSwitchingPopup = false; // флаг: идёт ли замена попапа на другой
+
+var isLegendShown = false; // ===== открыто описание легенды
 
 // Leaflet
 <?php if ( is_array($block["img"]) ): ?>
@@ -552,7 +735,7 @@ var isSwitchingPopup = false; // флаг: идёт ли замена попап
 
 	// шаблоны попав - подключем необходимые шаблоны
 <?php
-	function processPopupsRecursive($array, $template_dir, $prefix = '', $bUID)
+	function processPopupsRecursive($array, $template_dir, $bUID, $prefix = '')
 	{
 		//echo "console.log(<pre>" . $block["area_prefix"] . "</pre>);";
 		//echo "console.log('$template_dir');";
@@ -564,7 +747,7 @@ var isSwitchingPopup = false; // флаг: идёт ли замена попап
 			$newKey = $prefix ? $prefix . '_' . $key : $key;
 			
 			if (is_array($value)) {
-				$result = array_merge($result, processPopupsRecursive($value, $template_dir, $newKey, $bUID));
+				$result = array_merge($result, processPopupsRecursive($value, $template_dir, $bUID, $newKey));
 			} elseif (is_string($value)) {
 				$fileName = basename($value);
 				$filePath = realpath($template_dir . "/blocks/incl/" . $fileName . ".js");
@@ -583,7 +766,7 @@ var isSwitchingPopup = false; // флаг: идёт ли замена попап
 		return $result;
 	}
 
-	$popupsTypes = processPopupsRecursive($block["popups"] ?? [], $bender_settings["stylesheet_dir"], '', $bUID);
+	$popupsTypes = processPopupsRecursive($block["popups"] ?? [], $bender_settings["stylesheet_dir"], $bUID, '');
 ?>
    
     // Функция создания контента попапа Участка
@@ -683,7 +866,7 @@ var isSwitchingPopup = false; // флаг: идёт ли замена попап
 
 			// прячем мешающие элементы интерфейса
 			isPopupOpen = true;
-			setPopupElementsVisibility(true); // Скрываем интерфейс с анимацией
+			setPopupElementsVisibility(true, elementsToHide); // Скрываем интерфейс с анимацией
 					
 			// Используем точку клика, если она есть, иначе — центр полигона
 			const popupPosition = e?.latlng ? e.latlng : this.getBounds().getCenter();
@@ -701,6 +884,15 @@ var isSwitchingPopup = false; // флаг: идёт ли замена попап
 			const containers = document.querySelectorAll(".genplan-area-carousel-class");
 			containers.forEach((container, index) => {
 				miniCarouselInit(container.id);
+
+				// Явная инициализация Fancybox для динамически добавленных слайдов
+				if (typeof Fancybox !== 'undefined') {
+					Fancybox.bind(`#${container.id} [data-fancybox]`, {
+						//Thumbs: false,          // Отключить миниатюры внизу (если не нужны)
+						Carousel: { sync: false }, // Отключить синхронизацию с каруселью
+						// autoFocus: false,     // Раскомментируйте, если есть конфликты с фокусом
+					});
+				}
 			});
 
 			// КАСТОМИЗАЦИЯ КЛИЕНТА: TODO вынести в админку
@@ -743,14 +935,15 @@ var isSwitchingPopup = false; // флаг: идёт ли замена попап
 
 			const mapContainer = document.getElementById('<?= $bUID; ?>_map');
 
-			setPopupElementsVisibility(true);
+			isLegendShown = false;
+			setPopupElementsVisibility(true, elementsToHide);
 			
 			// Проверяем: может, это был переход на другой попап?
 			// Если _currentOpenPopup указывает на другой слой — не восстанавливаем интерфейс
 			if (!mapContainer?._currentOpenPopup || mapContainer._currentOpenPopup.popup === this) {
 				// Попап действительно закрыт (не заменён другим)
 				isPopupOpen = false;
-				setPopupElementsVisibility(true);
+				setPopupElementsVisibility(true, elementsToHide);
 			}
 			
 			if (mapContainer && mapContainer._currentOpenPopup?.popup === this) {
@@ -945,7 +1138,7 @@ var isSwitchingPopup = false; // флаг: идёт ли замена попап
 				closeAnyOpenPopup();
 				
 				isPopupOpen = true;
-				setPopupElementsVisibility(true);
+				setPopupElementsVisibility(true, elementsToHide);
 				
 				const popupPosition = e?.latlng ? e.latlng : this.getLatLng();
 				
@@ -965,7 +1158,7 @@ var isSwitchingPopup = false; // флаг: идёт ли замена попап
 				
 				if (!mapContainer?._currentOpenPopup || mapContainer._currentOpenPopup.popup === this) {
 					isPopupOpen = false;
-					setPopupElementsVisibility(true);
+					setPopupElementsVisibility(true, elementsToHide);
 				}
 				
 				if (mapContainer && mapContainer._currentOpenPopup?.popup === this) {
@@ -1005,9 +1198,14 @@ var isSwitchingPopup = false; // флаг: идёт ли замена попап
 			addInfrastructureIcon(icon);
 		});
 <?php endif; ?>
+})();
+<?php else: ?>
+// No data in array $block[img]. Leaflet function removed
+console.warn(`No data in array $block[img]. Leaflet function removed.`);
+<?php endif; ?>
 
 
-	// ===== УПРАВЛЕНИЕ Z-INDEX ПРИ ОТКРЫТИИ ПОПАПА =====
+	// ===== УПРАВЛЕНИЕ видимостью элементов ПРИ ОТКРЫТИИ ПОПАПА =====
 	const elementsToHide = []; // Массив элементов скрываемых при открытии попата на низких разрешениях
 	const elementsToHideAlways = []; // Массив элементов скрываемых при открытии попата всегда
 	
@@ -1027,6 +1225,7 @@ var isSwitchingPopup = false; // флаг: идёт ли замена попап
 			}
 		});
 	}
+
 	function initPopupZIndexManagerOLD(selectorList) {
 		selectorList.forEach(selector => {
 			//console.log(selector)
@@ -1043,12 +1242,12 @@ var isSwitchingPopup = false; // флаг: идёт ли замена попап
 	}
 	
 	// Плавное скрытие/показ элементов с учётом глобального состояния
-	function setPopupElementsVisibility(animate = true) {
-		//console.log(elementsToHide);
-		elementsToHide.forEach(item => {
+	function setPopupElementsVisibility(animate = true, elementsToHideArr) {
+		//console.log(elementsToHideArr);
+		elementsToHideArr.forEach(item => {
 			const el = item.element;
 			
-			if (isPopupOpen) {
+			if (isPopupOpen || isLegendShown) {
 				// ПОПАП ОТКРЫТ: скрываем элементы через класс
 				if (animate) {
 					// Небольшая задержка для плавного перехода
@@ -1077,16 +1276,10 @@ var isSwitchingPopup = false; // флаг: идёт ли замена попап
 		'.legend',          // Легенда 
 		'.back-btn',         // Кнопка "Назад"
 		'.leaflet-right',	// zoom карты
-		'.logo'		// лого сайта
+		'.logo',		// лого сайта
+		'.header' // да и весь хидер
 		
 	]);
-
-
-})();
-<?php else: ?>
-// No data in array $block[img]. Leaflet function removed
-console.warn(`No data in array $block[img]. Leaflet function removed.`);
-<?php endif; ?>
 
 // ===== УПРАВЛЕНИЕ ИНФО-ПАНЕЛЬЮ (СВОРАЧИВАНИЕ) =====
 const infoPanel = document.querySelector('#<?= $bUID; ?> .info-panel');
@@ -1130,6 +1323,170 @@ function miniCarouselInit(id){
 		).init();
 }
 
+// IPhone bottom panel fix
+
+
+function isIOS() {
+    return (
+        //typeof window.orientation !== "undefined" || 
+        //navigator.userAgent.indexOf('IEMobile') !== -1 ||
+        /iPhone|iPad|iPod/i.test(navigator.userAgent)
+    );
+}
+
+
+if ( isIOS() ) {
+	const legend = document.querySelector('#<?= $bUID; ?> .legend');
+	if (legend && !legend.classList.contains('ios-bottom')) {
+		legend.classList.add('ios-bottom');
+	}	
+}
+
+// ===== ПЛАВНОЕ ПОЯВЛЕНИЕ legend-text В ios-legend =====
+//setPopupElementsVisibility(true, elementsToHide);
+
+	const elementsToHideLegend = []; // Массив элементов скрываемых при открытии попата на низких разрешениях
+
+	function initPopupManagerLegend(selectorList) {
+		selectorList.forEach(selector => {
+			//console.log(selector)
+			const el = document.querySelector(selector);
+			if (el) {
+				//const inlineZ = el.style.zIndex;
+				elementsToHideLegend.push({
+					element: el,
+					//originalZ: inlineZ && inlineZ !== '' ? inlineZ : null
+				});
+				//console.log(selector);
+			}
+		});
+	}	// Инициализируем список скрываемых элементов TODO вынести в админку
+	initPopupManagerLegend([
+		'#<?= $bUID; ?> .info-panel'      // Основная инфопанель
+	]);
+	
+(function() {
+    const iosLegend = document.querySelector('#<?= $bUID; ?> .ios-legend');
+    if (!iosLegend) return;
+
+    const legendTexts = iosLegend.querySelectorAll('.legend-text');
+    let hideTimeout = null;
+    let clickTimeout = null;
+
+    // Функция показа всех текстов
+    function showLegendTexts(duration) {
+        // Очистить предыдущие таймауты
+        if (hideTimeout) clearTimeout(hideTimeout);
+        if (clickTimeout) clearTimeout(clickTimeout);
+
+		isLegendShown = true;
+        setPopupElementsVisibility(true, elementsToHideLegend);
+		// Показать тексты с плавным переходом
+		legendTexts.forEach(text => {
+            text.classList.add('legend-text--visible');
+        });
+
+        // Скрыть через указанное время
+        const timeout = duration || 5000; // по умолчанию 8 секунд
+        hideTimeout = setTimeout(() => {
+			isLegendShown = false;
+			setPopupElementsVisibility(true, elementsToHideLegend);
+            legendTexts.forEach(text => {
+                text.classList.remove('legend-text--visible');
+            });
+        }, timeout);
+    }
+
+    // 1. При загрузке страницы: показать на 5-10 секунд
+    document.addEventListener('DOMContentLoaded', () => {
+        // Небольшая задержка, чтобы стили применились
+        setTimeout(() => {
+            showLegendTexts(5000); // 8 секунд — можно изменить на 5000 или 10000
+        }, 300);
+    });
+
+    // 2. При клике на фильтр: показать на 1-2 секунды
+    iosLegend.querySelectorAll('.legend-item').forEach(item => {
+        item.addEventListener('click', function() {
+            // Показать текст на короткое время
+            showLegendTexts(1500); // 1.5 секунды — можно изменить
+        });
+    });
+
+    // Опционально: скрыть тексты при скролле или тапе вне легенды
+    document.addEventListener('touchstart', function(e) {
+        if (!iosLegend.contains(e.target)) {
+            if (hideTimeout) clearTimeout(hideTimeout);
+            legendTexts.forEach(text => {
+                text.classList.remove('legend-text--visible');
+            });
+        }
+    }, { passive: true });
+
+})();
+
+
+/*
+function applyIOSBottomFix() {
+    if (isIOS()) {
+        const legend = document.querySelector('#<?= $bUID; ?> .legend');
+        if (legend && !legend.classList.contains('ios-bottom')) {
+            legend.classList.add('ios-bottom');
+        }
+    }
+}
+
+// Вызываем после загрузки DOM и инициализации карты
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyIOSBottomFix);
+} else {
+    applyIOSBottomFix();
+}
+
+// Перепроверка при изменении ориентации (на всякий случай)
+window.addEventListener('orientationchange', applyIOSBottomFix);
+*/
+
+/*
+function adjustLegendForIOS() {
+    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        const legend = document.querySelector('#<?= $bUID; ?> .legend');
+        if (!legend) return;
+        
+        // Примерная высота нижней панели Safari
+        const safariBottomBar = window.innerHeight > window.screen.availHeight ? 90 : 0;
+        const safeAreaBottom = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sab')) || 0;
+        
+        legend.style.bottom = `calc(${legend.style.bottom || '20px'} + ${safariBottomBar}px)`;
+    }
+}
+
+// Вызов после загрузки
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', adjustLegendForIOS);
+} else {
+    adjustLegendForIOS();
+}
+
+// И при изменении ориентации
+window.addEventListener('orientationchange', adjustLegendForIOS);
+
+*/
 </script>
 <!-- Block: <?= $bUID; ?>, template: <?= $block["template"]; ?> -- END -->
-<?php //echo "<pre>block\n"; var_dump($block); echo "</pre>"; ?>
+<?php //if ( $dev ) { echo "<pre>block\n"; var_dump($block); echo "</pre>"; } ?>
+<?php //if ( $dev ) { echo "<pre>genplan_orders\n"; var_dump($genplan_orders); echo "</pre>"; } ?>
+
+<?php
+if ( $dev ) 
+{ 
+echo '<div style="position:absolute; width: 500px; height 500px; z-index:10000;top: 200px;
+    left: 200px;
+    background: brown;
+    color: black;">';
+echo do_shortcode('[contact-form-7 id="ebda539" title="Тест"]');
+echo '</div>';
+} ?>
+
+
+

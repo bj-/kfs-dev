@@ -1,188 +1,56 @@
 <?php
-/**
- * Go functions and definitions
- *
- * @package Go
- */
-
-/**
- * Theme constants.
- */
-define( 'GO_VERSION', '1.8.15' );
-define( 'GO_PLUGIN_DIR', get_template_directory( __FILE__ ) );
-define( 'GO_PLUGIN_URL', get_template_directory_uri( __FILE__ ) );
-
-/**
- * AMPP setup, hooks, and filters.
- */
-require_once get_parent_theme_file_path( 'includes/amp.php' );
-
-/**
- * Core setup, hooks, and filters.
- */
-require_once get_parent_theme_file_path( 'includes/core.php' );
-
-/**
- * Customizer additions.
- */
-require_once get_parent_theme_file_path( 'includes/customizer.php' );
-
-/**
- * Custom template tags for the theme.
- */
-require_once get_parent_theme_file_path( 'includes/template-tags.php' );
-
-/**
- * Pluggable functions.
- */
-require_once get_parent_theme_file_path( 'includes/pluggable.php' );
-
-/**
- * TGMPA plugin activation.
- */
-require_once get_parent_theme_file_path( 'includes/tgm.php' );
-
-/**
- * WooCommerce functions.
- */
-require_once get_parent_theme_file_path( 'includes/woocommerce.php' );
-
-/**
- * Page Titles Meta functions.
- */
-require_once get_parent_theme_file_path( 'includes/title-meta.php' );
-
-/**
- * Go Deactivate Modal functions.
- */
-require_once get_parent_theme_file_path( 'includes/classes/admin/class-go-theme-deactivation.php' );
-
-/**
- * Layouts for the CoBlocks layout selector.
- */
-foreach ( glob( get_parent_theme_file_path( 'partials/layouts/*.php' ) ) as $filename ) {
-	require_once $filename;
-}
-
-/**
- * Run setup functions.
- */
-Go\AMP\setup();
-Go\Core\setup();
-Go\TGM\setup();
-Go\Customizer\setup();
-Go\WooCommerce\setup();
-Go\Title_Meta\setup();
-
-if ( ! function_exists( 'wp_body_open' ) ) :
-	/**
-	 * Fire the wp_body_open action.
-	 *
-	 * Added for backwards compatibility to support pre 5.2.0 WordPress versions.
-	 */
-	function wp_body_open() {
-		// Triggered after the opening <body> tag.
-		do_action( 'wp_body_open' );
-	}
-endif;
-
-/* подключение стилей */
-function theme_enqueue_styles() {
-    wp_enqueue_style( 'style', get_stylesheet_uri() );
-}
-add_action( 'wp_enqueue_scripts', 'theme_enqueue_styles' );
-
-//require_once(get_template_directory() . "/kfs-functions.php");  
-
-//KFS Studio functions
-
-require_once(get_template_directory() . "/kfs-functions.php"); // 
-
-/* 
-// Bender functions
-
-// Конвертер ACF JSON - добавление страницы в Tools в админке если есть файл
-if ( is_file(WP_CONTENT_DIR . '/acf-json-regenerator.php') )
-{
-	add_action('admin_menu', function() {
-		add_management_page(
-			'ACF Key Regenerator',           // Page title
-			'ACF Keys',                      // Menu title
-			'manage_options',                // Capability
-			'acf-key-regenerator',           // Menu slug
-			function() {
-				// Путь к файлу в /wp-content/
-				$file = WP_CONTENT_DIR . '/acf-json-regenerator.php';
-				
-				if (file_exists($file)) {
-					include $file;
-				} else {
-					echo '<div class="error"><p>❌ Файл не найден: <code>' . esc_html($file) . '</code></p></div>';
-				}
-			}
-		);
-	});
-}
-
-
-
+// KFS Studio Functions
 // Настройки сайта
 function get_site_settings()
 {
 	global $standalone;
-	// Company settings
-	$ret["contacts"] 	= get_field("contacts", 'option');
-	$ret["company"] 	= get_field("company", 'option');
-	$ret["menu"] 		= get_field("menu", 'option');
-	$ret["company"]["copyright"] = get_field("copyright", 'option');
-	$ret["chat"] 		= get_field("site_chat", 'option');
-	$ret["chat"]		= get_field("chats", 'option');
 
-	// Site settings
-	$ret["fonts"]		= get_field('fonts', 'option');
-//	$ret["wow_style"]	= get_field('wow_style', 'option');
-	$ret["title_style"]	= get_field('title_style', 'option');
-
-	$ret["header"]		= get_field('header', 'option');
-	$ret["footer"]		= get_field('footer', 'option');
-	$ret["chat"]		= get_field('chat_settings', 'option');
-	$ret["colors"]		= get_field('colors', 'option');
-	$ret["custom"]		= get_field('custom', 'option');
-
-	$ret["size"]["title"]		= get_field('title_size', 'option');
-
-	// Генплан
-	$ret["genplan"]["img"]		= get_field('genplan_img', 'option');
-	$ret["genplan"]["area"]		= get_field('area', 'option');
-	
-
-
-	if ( $standalone )
+	if ( !$standalone )
 	{
+		
 		$ret["template_dir"] = __DIR__;
 		$ret["stylesheet_dir"] = __DIR__;
+			// Company settings
+		$ret["contacts"] 	= get_field("contacts", 'option');
+		$ret["company"] 	= get_field("company", 'option');
+		$ret["menu"] 		= get_field("menu", 'option');
+		$ret["company"]["copyright"] = get_field("copyright", 'option');
+		$ret["chat"] 		= get_field("site_chat", 'option');
+		$ret["chat"]		= get_field("chats", 'option');
+
+		// Site settings
+		$ret["fonts"]		= get_field('fonts', 'option');
+		//	$ret["wow_style"]	= get_field('wow_style', 'option');
+		$ret["title_style"]	= get_field('title_style', 'option');
+
+		$ret["header"]		= get_field('header', 'option');
+		$ret["footer"]		= get_field('footer', 'option');
+		$ret["chat"]		= get_field('chat_settings', 'option');
+		$ret["colors"]		= get_field('colors', 'option');
+		$ret["custom"]		= get_field('custom', 'option');
+		$ret["size"]["title"]	= get_field('title_size', 'option');
+
 	}
 	else
 	{
 		$ret["template_dir"] = get_template_directory_uri();
 		$ret["stylesheet_dir"]= get_stylesheet_directory();
+
+		$ret["size"]["title"]	= get_field('title_size', 'option');
+		$ret["colors"]["site"]["bg"] 		= "rgb(10,0,0)";
+		$ret["colors"]["text"]["customize"] = "rgb(0,255,0)";
+		$ret["colors"]["text"]["title"] 	= "rgb(255, 255, 255);";
+		$ret["colors"]["site"]["text"] 		= "rgb(0,255,255)";
+		$ret["title_style"] 	= "ssss";
 	}
 	
-
-	
-	//echo "<pre>"; var_dump($ret["colors"]); echo "</pre>";
-	//echo "<pre>"; var_dump($ret["AAAA"]); echo "</pre>";
-
-	// blocks order and settings
-
-
+	// $title_color
 	return $ret;
 }
 
 function getPageIdByShortcut($slug)
 {
 	// получение ID страницы по имени "ярлыка" страницы. Например по "genplan" для полного URL site.com/genplan/;
-
 	$query = new WP_Query([
 		'name' => $slug,
 		'post_type' => 'page',
@@ -194,16 +62,13 @@ function getPageIdByShortcut($slug)
 	if ($query->have_posts()) {
 		$page_id = $query->posts[0];
 		return $page_id;
-		//echo "<pre>page_id\n"; var_dump($page_id); echo "</pre>";
 	}
 }
 
 function getBlockData($blockID, $page_id = null)
 {
 	$page_id = ($page_id) ? $page_id : get_the_ID();
-	//$page_id = 15;
-	
-	//echo "ret = get_field($blockID, $page_id)\n";
+
 	$ret = get_field($blockID, $page_id);
 	$ret["BlockID"] = $blockID;
 	$ret["template_checked"] = checkTemplateExist($ret["template"]);
@@ -213,6 +78,7 @@ function getBlockData($blockID, $page_id = null)
 
 function checkTemplateExist($template)
 {
+
 	if (is_file(__DIR__ . '/blocks/' . htmlspecialchars(substr($template, 0, 30)) . '.php'))
 	{
 		return $template; 
@@ -225,11 +91,12 @@ function checkTemplateExist($template)
 
 
 
-// * Рекурсивное слияние массивов с приоритетом $base
-// * @param array $base Базовый массив (имеет приоритет)
-// * @param array $source Массив-источник (добавляет отсутствующие ключи)
-// * @return array
-// 
+/**
+ * Рекурсивное слияние массивов с приоритетом $base
+ * @param array $base Базовый массив (имеет приоритет)
+ * @param array $source Массив-источник (добавляет отсутствующие ключи)
+ * @return array
+ */
 function array_merge_recursive_priority(array $base, array $source): array {
     $result = $base; // Начинаем с base (его значения приоритетны)
     
@@ -252,9 +119,10 @@ function array_merge_recursive_priority(array $base, array $source): array {
 
 function compile_title_style($title_style)
 {
-	//echo "<pre>compile_title_style(title_style) => title_style\n"; var_dump($title_style); echo "</pre>";
 	$name = array();
 	$data_prop = array();
+
+	if ( @!is_array(@$title_style) ) { return false; }
 
 	foreach ( $title_style as $item)
 	{
@@ -267,8 +135,6 @@ function compile_title_style($title_style)
 	$ret["name"] = implode(" ", $name);
 	$ret["data"] = implode(" ", $data_prop);
 
-	//echo "<pre>compile_title_style(title_style) => ret\n"; var_dump($ret); echo "</pre>";
-
 	return $ret;
 }
 
@@ -277,17 +143,12 @@ function addBlock($blockInfo, $page_id = NULL, $firstBlock = false)
 	global $bender_settings;
 	
 	$page_id = ($page_id) ? $page_id : get_the_ID();
-	//echo "<pre>addBlock-page_id\n"; var_dump($page_id); echo "</pre>";
 	
 	$bUID = $blockInfo["block_id"];
 	$blockID = $bUID; // для обратной совместимости. TODO заменить $blockID на $bUID
 	$block = getBlockData($bUID, $page_id);
 
-	//echo "<pre>block[view][page]\n"; var_dump($block["view"]["page"]); echo "</pre>";
-	//echo "<pre>block[view]\n"; var_dump($block["view"]); echo "</pre>";
-
-
-	if ( is_array(@$block["datapage"]) )
+	if ( @is_array(@$block["datapage"]) )
 	{
 		//echo "<pre>$block[datapage]\n"; var_dump($block["datapage"]); echo "</pre>";
 		foreach ( $block["datapage"] as $item)
@@ -311,49 +172,10 @@ function addBlock($blockInfo, $page_id = NULL, $firstBlock = false)
 			}
 		}
 		//echo "<pre>block\n"; var_dump($block); echo "</pre>";
-
-
-
-		//$dataPageID = getPageIdByShortcut($block["datapage"]["shortcut"]);
-		//$data_block = getBlockData($block["datapage"]["block"], $dataPageID);
-
-		//echo "<pre>data_block\n"; var_dump($data_block); echo "</pre>";
-		//echo "<pre>data_block[view]\n"; var_dump($data_block["view"]); echo "</pre>";
-		
-		
-		//$fieldNames = array_map('trim', array_column($block['datapage']['fields'], 'name'));
-
-		// 2. Фильтруем data_block: оставляем только нужные ключи
-		//$filteredDataBlock = array_intersect_key($data_block, array_flip($fieldNames));
-	
-		// 3. Слияние: оператор + НЕ перезаписывает существующие ключи
-		//    block имеет приоритет, данные из data_block добавятся только если ключа нет в block
-		//$merged = $filteredDataBlock + $block;
-
-		// Использование:
-		////$fieldNames = array_map('trim', array_column($block['datapage']['fields'], 'name'));
-
-		// Фильтруем data_block: оставляем только ключи из fields
-		////$filteredDataBlock = array_intersect_key($data_block, array_flip($fieldNames));
-
-		// Рекурсивное слияние с приоритетом block
-		/////$merged = array_merge_recursive_priority($block, $filteredDataBlock);		
-		//$fieldNames = array_map('trim', array_column($block['datapage']['fields'], 'name'));
-		//$merged = mergeWithPriority($block, $data_block, $fieldNames);
-
-		////$block = $merged;
-
-		//echo "<pre>merged[view][page]\n"; var_dump($merged["view"]["page"]); echo "</pre>";
-		//echo "<pre>merged[view]\n"; var_dump($merged["view"]); echo "</pre>";
-
 		//echo "<pre>merged\n"; var_dump($merged); echo "</pre>";
 		//echo "<pre>merged\n"; var_dump($merged); echo "</pre>";
 		
 	}
-
-
-
-
 
 	
 	//$block = getBlockData($bUID);
@@ -386,8 +208,6 @@ function addBlock($blockInfo, $page_id = NULL, $firstBlock = false)
 	// вычисляем стиль заголовка
 	//echo "<pre>block[title-effect][type]\n"; var_dump($block["title-effect"]["type"]); echo "</pre>";
 	//echo "<pre>bender_settings[title_style]\n"; var_dump($bender_settings["title_style"]); echo "</pre>";
-
-	//echo "<pre>bender_settings\n"; var_dump($bender_settings["title_style"]); echo "</pre>";
 
 	switch ($block["title-effect"]["type"])
 	{
@@ -431,7 +251,7 @@ function bender_page_builder()
 {
 	$arr = get_page_settings();
 	//echo "<pre>function bender_page_builder()\n"; var_dump($arr); echo "</pre>";
-
+	
 	if ( !is_array($arr) )
 	{
 		echo "<div style='color:white; background-color:black; position: absolute; top: 50%; width: 100%; padding: 50px;'>
@@ -500,16 +320,42 @@ function convertToLeafletCoords ($src, $shift, $type = "poly")
 		
 		// Декодируем JSON
 		$coords = json_decode($jsonString, true);
-		//$coords = '';
 		// Округляем значения до целых и применяем сдвиг если подложка поменялась
 		if (is_array($coords)) 
 		{
 			$coords = array_map(function($point) use ($shiftX, $shiftY, $type) {
-			
+				switch ($type)
+				{
+					case "poly":
+						$x = $point[0];
+						$y = $point[1];
+						return [
+								(int)round($x + $shiftX),
+								(int)round($y + $shiftY)
+						];
+						break;
+					case "marker":
+						$x = $point[1];
+						$y = $point[0];
+						return [
+								(int)round($x + $shiftY), //у маркера инвертированны координаты
+								(int)round($y + $shiftX)
+						];
+						break;
+					default:
+						$x = $point[0];
+						$y = $point[1];
+						return [
+								(int)round($x + $shiftX),
+								(int)round($y + $shiftY)
+						];
+				}
+/*
 				return [
-					(int)round($point[0] + $shiftX),
-					(int)round($point[1] + $shiftY)
+						(int)round($x + $shiftX),
+						(int)round($y + $shiftY)
 				];
+				*/
 			}, $coords);
 		}
 		else
@@ -527,13 +373,6 @@ function convertToLeafletCoords ($src, $shift, $type = "poly")
 }
 function convertToLeafletArrayPlace ($area, $shift, $prefix)
 {
-	//, $coordinates, $shift
-	//echo "<pre>IN convertToLeafletArray \n"; var_dump($area); echo "</pre>";
-	//echo "<pre>shift\n"; var_dump($shift); echo "</pre>";
-
-	//echo "<pre>area\n"; var_dump($area); echo "</pre>";
-	//echo "<pre>shift\n"; var_dump($shift); echo "</pre>";
-	//echo "<pre>prefix\n"; var_dump($prefix); echo "</pre>";
 	
 	if (! is_array($area) )
 	{
@@ -542,10 +381,10 @@ function convertToLeafletArrayPlace ($area, $shift, $prefix)
 	
 	foreach ($area as $key => $item)
 	{
-		//$id = $item["object"]["ids"]["id"]; // TODO REMOVE
 		$id = 'place' . $key;
 		$name = $prefix . " " . $item["object"]["ids"]["name"];
 		$status = $item["object"]["ids"]["status"];
+		//$status = 'not-available';
 		$price = $item["object"]["ids"]["price"];
 		$desc = $item["object"]["ids"]["desc"];
 		$square = $item["object"]["ids"]["square"];
@@ -556,9 +395,7 @@ function convertToLeafletArrayPlace ($area, $shift, $prefix)
 
 		$active = $item["object"]["ids"]["active"]; // показывать на карте
 
-		//$coords = convertToLeafletCoords($coordinates[$id]["coords"], $shift);
 		$coords = convertToLeafletCoords($item["object"]["coord"], $shift, "poly");
-		//echo "<pre>coords\n"; var_dump($coords); echo "</pre>";
 
 		if ($active)
 		{
@@ -578,13 +415,11 @@ function convertToLeafletArrayPlace ($area, $shift, $prefix)
 			);	
 		};
 	}
-	//echo "<pre>IN convertToLeafletArray - ret \n"; var_dump($ret); echo "</pre>";
 	return $ret;	
 }
 
 function convertToLeafletArrayPOI ($area, $shift)
 {
-	//echo "<pre>IN convertToLeafletArray \n"; var_dump($area); echo "</pre>";
 
 	if (! is_array($area) )
 	{
@@ -602,7 +437,6 @@ function convertToLeafletArrayPOI ($area, $shift)
 		$active = $item["object"]["ids"]["active"]; // показывать на карте
 		
 		$coords = convertToLeafletCoords($item["object"]["coord"], $shift, "marker");
-		//echo "<pre>coords\n"; var_dump($coords); echo "</pre>";
 
 		if ($active)
 		{
@@ -621,24 +455,27 @@ function convertToLeafletArrayPOI ($area, $shift)
 }
 function convertToLeafletArrayOrders ($area, $shift)
 {
-	//echo "<pre>IN convertToLeafletArray \n"; var_dump($area); echo "</pre>";
+
 	if (! is_array($area) )
 	{
 		return array(); // возвращаем пустой массив если нет данных для конвертации
 	}
 	
-	foreach ($area as $item)
+	foreach ($area as $key => $item)
 	{
 		$id = 'order' . $key;
 		$name = $item["object"]["ids"]["name"];
+		$status = $item["object"]["ids"]["status"];
 		$desc = $item["object"]["ids"]["desc"];
+		$link = $item["object"]["link"];
 		$gallery = $item["object"]["gallery"];
 		$ico = $item["object"]["ico"];
+		$fillColor = $item["object"]["fill-color"];
+		$borderColor = $item["object"]["fill-color"];
 
 		$active = $item["object"]["ids"]["active"]; // показывать на карте
 		
 		$coords = convertToLeafletCoords($item["object"]["coord"], $shift, "poly");
-		//echo "<pre>coords\n"; var_dump($coords); echo "</pre>";
 
 		if ($active)
 		{
@@ -647,24 +484,17 @@ function convertToLeafletArrayOrders ($area, $shift)
 				"ID" => $id,
 				"ico" => $ico,
 				"name" => $name,
+				"status" => $status,
 				"desc" => $desc,
+				"olink" => $link,
 				"gallery" => $gallery,
-				"coords" => $coords
+				"coords" => $coords,
+				"fillColor" => $fillColor,
+				"borderColor" => $borderColor
 			);	
 		};
 	}
 	return $ret;	
-}
-
-function convert_coords($coords)  // TO BE DELETE
-{
-	//echo "<pre>coords\n"; var_dump($coords); echo "</pre>";
-	if ( is_array($coords["place"]) ) {	foreach ($coords["place"] as $item )	{ $ret["place"][$item["id"]] 	= $item; } }
-	if ( is_array($coords["poi"]) ) {	foreach ($coords["poi"] as $item )		{ $ret["poi"][$item["id"]] 		= $item; } }
-	if ( is_array($coords["orders"]) ) {	foreach ($coords["orders"] as $item )	{ $ret["orders"][$item["id"]]	= $item; } }
-	$ret["shift"] = $coords["shift"];
-	
-	return $ret;
 }
 function convertToLeafletArrayLines ($area, $shift)
 {
@@ -683,6 +513,9 @@ function convertToLeafletArrayLines ($area, $shift)
 		$link = $item["object"]["link"];
 		$gallery = $item["object"]["gallery"];
 		$ico = $item["object"]["ico"];
+		$color = $item["object"]["color"];
+		$type = $item["object"]["type"];
+		$gage = $item["object"]["gage"];		
 		
 
 		$active = $item["object"]["ids"]["active"]; // показывать на карте
@@ -700,7 +533,10 @@ function convertToLeafletArrayLines ($area, $shift)
 				"desc" => $desc,
 				"olink" => $link,
 				"gallery" => $gallery,
-				"coords" => $coords
+				"coords" => $coords,
+				"color" => $color,
+				"type" => $type,
+				"gage" => $gage,
 			);	
 		};
 	}
@@ -709,136 +545,8 @@ function convertToLeafletArrayLines ($area, $shift)
 
 // Leaflet functions END
 
-
-$standalone = false;
-
 // Init
 $bender_settings = get_site_settings();
 
+?>
 
-
-// OLD To Be Delete
-function convertToLeafletArrayPlace_OLD ($area, $coordinates, $shift)
-{
-	//echo "<pre>IN convertToLeafletArray \n"; var_dump($area); echo "</pre>";
-	//echo "<pre>shift\n"; var_dump($shift); echo "</pre>";
-	
-	if (! is_array($area) )
-	{
-		return array(); // возвращаем пустой массив если нет данных для конвертации
-	}
-	
-	foreach ($area as $item)
-	{
-		$id = $item["object"]["ids"]["id"];
-		$name = $item["object"]["ids"]["name"];
-		$status = $item["object"]["ids"]["status"];
-		$price = $item["object"]["place"]["price"];
-		$desc = $item["object"]["place"]["desc"];
-		$square = $item["object"]["place"]["square"];
-		$projects = $item["object"]["projects"]["project"];
-		$interior = $item["object"]["projects"]["interior"];
-		$gallery = $item["object"]["gallery"];
-		$ico = $item["object"]["ico"];
-
-		$active = $coordinates[$id]["active"]; // показывать на карте
-
-		$coords = convertToLeafletCoords($coordinates[$id]["coords"], $shift);
-		//echo "<pre>coords\n"; var_dump($coords); echo "</pre>";
-
-		if ($active)
-		{
-			// Итоговый сконвертированный массив для Леафлета
-			$ret[] = array(
-				"ID" => $id,
-				"ico" => $ico,
-				"name" => $name,
-				"status" => $status,
-				"price" => $price,
-				"desc" => $desc,
-				"square" => $square,
-				"projects" => $projects,
-				"interior" => $interior,
-				"gallery" => $gallery,
-				"coords" => $coords
-			);	
-		};
-	}
-	return $ret;	
-}
-
-function convertToLeafletArrayPOI_OLD ($area, $coordinates, $shift)
-{
-	//echo "<pre>IN convertToLeafletArray \n"; var_dump($area); echo "</pre>";
-
-	if (! is_array($area) )
-	{
-		return array(); // возвращаем пустой массив если нет данных для конвертации
-	}
-	
-	foreach ($area as $item)
-	{
-		$id = $item["object"]["ids"]["id"];
-		$name = $item["object"]["ids"]["name"];
-		$desc = $item["object"]["ids"]["desc"];
-		$gallery = $item["object"]["gallery"];
-		$ico = $item["object"]["ico"];
-
-		$active = $coordinates[$id]["active"]; // показывать на карте
-		
-		$coords = convertToLeafletCoords($coordinates[$id]["coords"], $shift);
-		//echo "<pre>coords\n"; var_dump($coords); echo "</pre>";
-
-		if ($active)
-		{
-			// Итоговый сконвертированный массив для Леафлета
-			$ret[] = array(
-				"ID" => 'poi_' . $id,
-				"ico" => $ico,
-				"name" => $name,
-				"desc" => $desc,
-				"gallery" => $gallery,
-				"coords" => $coords
-			);	
-		};
-	}
-	return $ret;	
-}
-function convertToLeafletArrayOrders_OLD ($area, $coordinates, $shift)
-{
-	//echo "<pre>IN convertToLeafletArray \n"; var_dump($area); echo "</pre>";
-	if (! is_array($area) )
-	{
-		return array(); // возвращаем пустой массив если нет данных для конвертации
-	}
-	
-	foreach ($area as $item)
-	{
-		$id = $item["object"]["ids"]["id"];
-		$name = $item["object"]["ids"]["name"];
-		$desc = $item["object"]["ids"]["desc"];
-		$gallery = $item["object"]["gallery"];
-		$ico = $item["object"]["ico"];
-
-		$active = $coordinates[$id]["active"]; // показывать на карте
-		
-		$coords = convertToLeafletCoords($coordinates[$id]["coords"], $shift);
-		//echo "<pre>coords\n"; var_dump($coords); echo "</pre>";
-
-		if ($active)
-		{
-			// Итоговый сконвертированный массив для Леафлета
-			$ret[] = array(
-				"ID" => $id,
-				"ico" => $ico,
-				"name" => $name,
-				"desc" => $desc,
-				"gallery" => $gallery,
-				"coords" => $coords
-			);	
-		};
-	}
-	return $ret;	
-}
-
-*/

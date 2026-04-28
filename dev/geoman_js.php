@@ -199,3 +199,59 @@
 					const y = Math.round(latlng.lat); // Y координата
 					return `[${x},${y}]`;
 				}
+				
+				/////// Маркеры END
+				
+
+		/////// Линии Старт
+
+		// Input для вывода координат
+        //const polyCoordsInput = document.getElementById('poly_coords');
+
+        // === Функция получения координат полилинии в L.CRS.Simple ===
+        function getPolylineCoords(layer) {
+                if (!(layer instanceof L.Polyline)) return '';
+
+                // В L.CRS.Simple: lat = Y, lng = X
+                const latlngs = layer.getLatLngs();
+
+                // Формируем массив [X, Y] где X=lng, Y=lat
+                const coords = latlngs.map(ll => {
+                        const x = Math.round(ll.lng); // X координата
+                        const y = Math.round(ll.lat); // Y координата
+                        return `[${x},${y}]`;
+                });
+
+                return coords.join(',');
+        }
+
+        // === Редактирование полилинии (линии) ===
+        function updatePolylineCoords(e) {
+                if (e.layer instanceof L.Polyline) {
+                        const coords = getPolylineCoords(e.layer);
+                        polyCoordsInput.value = coords;
+                        e.layer._coords = coords;
+                        console.log('✏️ Линия отредактирована:', coords);
+                }
+        }
+
+        // === Очистка координат при удалении ===
+        function clearCoords(e) {
+                if (e.layer instanceof L.Polygon || e.layer instanceof L.Marker || e.layer instanceof L.Polyline) {
+                        polyCoordsInput.value = '';
+                        console.log('🗑️ Объект удалён');
+                }
+        }				
+
+        // === Обработчик создания новых линий через Geoman ===
+		// Редактирование линий нормально работает и без этого кода. хз зачем он.
+        map.on('pm:create', function(e) {
+                if (e.layer instanceof L.Polyline && !(e.layer instanceof L.Polygon)) {
+                        const coords = getPolylineCoords(e.layer);
+                        polyCoordsInput.value = coords;
+                        console.log('✅ Линия создана:', coords);
+                        e.layer.on('pm:edit', updatePolylineCoords);
+                        e.layer.on('pm:remove', clearCoords);
+                        e.layer._coords = coords;
+                }
+        });		

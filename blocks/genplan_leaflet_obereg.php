@@ -6,10 +6,10 @@ $dev = ($_SERVER['SERVER_NAME'] == "kfs-dev" or @$_GET["dev"] == "yep") ? TRUE :
 $genplan_areas = convertToLeafletArrayPlace($block["areas"], $block["view"]["shift"], $block["area_prefix"]);
 $genplan_poi = convertToLeafletArrayPOI($block["poi"], $block["view"]["shift"]);
 $genplan_orders = convertToLeafletArrayOrders($block["orders"], $block["view"]["shift"]);
+$genplan_lines = convertToLeafletArrayLines($block["lines"], $block["view"]["shift"]);
 
 if ($dev) 
 {
-	$genplan_lines = convertToLeafletArrayLines($block["lines"], $block["view"]["shift"]);
 
 	echo '
 	<link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.css">
@@ -95,11 +95,16 @@ if ($dev)
 	}
 	
 	& .leaflet-popup-content {
-	margin-top: clamp(5px, 3vw, 13px);
-    margin-right: clamp(5px, 3vw, 24px);
-    margin-bottom: clamp(5px, 3vw, 13px);
-    margin-left: clamp(5px, 3vw, 24px);
-	width: max-content !important;
+		margin-top: clamp(5px, 3vw, 13px);
+		margin-right: clamp(5px, 3vw, 24px);
+		margin-bottom: clamp(5px, 3vw, 13px);
+		margin-left: clamp(5px, 3vw, 24px);
+		width: max-content !important;
+		& .projects {
+			display: flex;
+			flex-direction: row;
+			gap: 5px;
+		}
 	}
 
 	& .popup-content, 
@@ -474,6 +479,10 @@ if ($dev)
     }
 }
 
+#myCarousel {
+	--f-carousel-gap: 10px;
+	}
+
 /* Кастомизация страницы */
 <?= $block["custom"]["styles"];  ?>
 </style>
@@ -717,12 +726,14 @@ var isLegendShown = false; // ===== открыто описание легенд
 	?>
     
     // Функция получения цвета по статусу
-    function getColor(status) {
+    function getColor(status, color = '<?= $block["polygon_color"]["not-available"] ?>') {
+		//console.log('color = <?= $block["polygon_color"]["not-available"] ?>');
         switch(status) {
             case 'sold': return '<?= $block["polygon_color"]["sold"] ?>';
             case 'reserved': return '<?= $block["polygon_color"]["reserved"] ?>';
             case 'available': return '<?= $block["polygon_color"]["available"] ?>';
             case 'not-available': return '<?= $block["polygon_color"]["not-available"] ?>';
+            case 'custom': return color;
             default: return '<?= $block["polygon_color"]["not-available"] ?>';
         }
     }
@@ -818,7 +829,7 @@ var isLegendShown = false; // ===== открыто описание легенд
     
     // Функция добавления участка на карту
     function addPlot(data, type, thickness) {
-		//console.log(thickness);
+		//console.log(data.color);
         // Координаты:
         const coordsMap = data.coords.map(point => [
             (point[1]),                // X 
@@ -826,10 +837,15 @@ var isLegendShown = false; // ===== открыто описание легенд
         ]);
         
         // Создаем многоугольник с белой рамкой 1px
+		let fillcolor = ( data.status == 'custom' ) ? data.fillColor : getColor(data.status);
+		let bordercolor = ( data.status == 'custom' ) ? data.borderColor : 'white';
+		console.log(`fillcolor = ${fillcolor}`);
+		console.log(`bordercolor = ${bordercolor}`);
+		
         const polygon = L.polygon(coordsMap, {
-            color: 'white',      // белая рамка
+            color: bordercolor, //'white',      // белая рамка
             weight: thickness, //1 // thickness,           // толщина рамки 1px
-            fillColor: getColor(data.status),
+            fillColor: fillcolor, // getColor(data.status),
             //fillOpacity: 0.10
             fillOpacity: 1
         }).addTo(map);
@@ -1280,6 +1296,14 @@ var isLegendShown = false; // ===== открыто описание легенд
 		}).setContent(createPopupContent(line, 'line'));
 		
 		polyline._customPopup = popup;
+
+		<?php if ( $dev ): ?>
+		// DEV GEOMAN START
+		polyline.on('pm:edit', updatePolylineCoords);
+		polyline.on('pm:remove', clearCoords);
+		polyline._coords = getPolylineCoords(polyline);
+		// DEV GEOMAN END
+		<?php endif; ?>
 		
 		// === Обработчик клика — идентичен логике полигонов ===
 		polyline.on('click', function(e) {
@@ -1466,13 +1490,28 @@ function miniCarouselInit(id){
 	Carousel(
 		document.getElementById(id),
 		{
+			Autoscroll: {
+				speed : 3,
+				speedOnHover: 1
+			},
+			style: {
+				"--f-progressbar-color": "rgb(231,76,60)",
+				"--f-progressbar-height": "3px",
+				"--f-carousel-gap": "10px",
+			},
 		// Your custom options
 		},
 		{
 			Lazyload,
 			Arrows,
-			Dots
-		}
+			Dots,
+			Autoscroll,
+			//Autoplay
+		},
+		//style: {
+			//"--f-progressbar-color": "#111",
+			//"--f-progressbar-height": "2px",
+		//},
 		).init();
 }
 

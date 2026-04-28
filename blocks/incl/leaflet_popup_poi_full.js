@@ -17,6 +17,9 @@ function <?= $currentFileName; ?>(data){
 			</div>
 			`;
 	}
+	let olink = (data && data?.olink) ? data.olink : '';
+
+	//console.log('[DBG] olink: ' + olink);
 
 	// gallery
 	let gallery = [];
@@ -27,7 +30,7 @@ function <?= $currentFileName; ?>(data){
 			let img = ( item.img ) ? item.img : '';
 			let name  = ( item.name ) ? item.name : '';
 
-			let galleryItem = `<div class="f-carousel__slide area_gallery_item" data-fancybox="fancybox-carousel-<?= $bUID; ?>-poi-${id}" data-src="${item.img}" data-thumb-src="${item.img}" style="background:url('${item.img}');     height: 200px;">`;
+			let galleryItem = `<div class="f-carousel__slide area_gallery_item" data-fancybox="fancybox-carousel-<?= $bUID; ?>-poi-${id}" data-src="${item.img}" data-thumb-src="${item.img}" style="background:url('${item.img}');height: 200px;">`;
 			
 			if (name){
 				galleryItem += `
@@ -58,16 +61,21 @@ function <?= $currentFileName; ?>(data){
 		let imgName	= (data && data?.gallery?.[0]?.name ) ? data.gallery[0].name : '';
 		if (imgUrl) {
 			img += `
-				<div class="popup-img" style="background:url('${imgUrl}'); ">
+				<div class="popup-poi-img" style="background:url('${imgUrl}'); ">
 				`;
+			img += (olink) ? `<a href='${olink}' class="link">` : '';
+
 			if ( imgName ){
-				img += `<div class='img_gradient w100h100p'>
+				img += `<div class='img_gradient w100h100p'>`;
+				img += `
 							<div class="img-label">
 								${imgName}
-							</div>
+							</div>`;
+				img += `
 						</div>
 						`;
 			}
+			img += (olink) ? `</a>` : '';
 			img += `</div>`;
 		}
 	}

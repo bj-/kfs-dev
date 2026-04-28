@@ -24,6 +24,41 @@ function <?= $currentFileName; ?>(data){
 		project += `</span></span>`;
 
 	}
+
+	let projects = [];
+	let projectsHtml = '';
+	if ( data && data?.projects?.[1]?.name )
+	{
+		data.projects.forEach((item, index) => {
+			projectItem = '';
+			let projectName  = ( item.name ) ? item.name : '';
+			let projectSquare  = ( item.square ) ? item.square : '';
+			let projectlink  = ( item.link ) ? item.link : '';
+
+// <a href="/projects/proekt-doma-xl/" class="project-link">Проект дома X, 793.4 м кв.</a>
+
+			projectItem += (projectlink) ? `<a href='${projectlink}' class="project-link">` : '';
+			projectItem += projectName;
+			projectItem += (projectSquare) ? `, ${projectSquare} м кв.` : '';
+			projectItem += (projectlink) ? `</a>` : '';
+
+			projects.push(projectItem);
+		});		
+	}
+	if ( projects.length ){
+		projectsHtml += `<div class="projects">
+							<div class="label">Проекты домов:</div>
+							<div class="value">`;
+		projectsHtml += projects.join('<br />');
+		projectsHtml += `	</div>
+						</div>`;
+		
+		//project = '';
+	}
+	
+	projects = [];
+	projectsHtml = '';
+	
 	let interiorName	= (data && data?.interior?.[0]?.name ) ? data.interior[0].name : '';
 	let interiorlink	= (data && data?.interior?.[0]?.link ) ? data.interior[0].link : '';
 	
@@ -54,11 +89,16 @@ function <?= $currentFileName; ?>(data){
 			let img = ( item.img ) ? item.img : '';
 			let name  = ( item.name ) ? item.name : '';
 
-			let galleryItem = `<div class="f-carousel__slide area_gallery_item" data-fancybox="fancybox-carousel-<?= $bUID; ?>-area-${id}" data-src="${item.img}" data-thumb-src="${item.img}" style="background:url('${item.img}');     height: 200px;">`;
+			let galleryItem = `<div class="f-carousel__slide area_gallery_item" data-fancybox="fancybox-carousel-<?= $bUID; ?>-area-${id}" data-src="${item.img}" data-thumb-src="${item.img}" style="background:url('${item.img}'); height: 200px;">`;
 			if (name){
 				galleryItem += `
 				<div class="img_gradient img_border w100h100p">
-					<span class="img-label">${name}</span>
+					<span class="img-label">`;
+				galleryItem += (projectlink) ? `<a href='${projectlink}' class="link">` : '';
+				galleryItem += name;
+				galleryItem += (projectlink) ? `</a>` : '';
+				galleryItem += `
+					</span>
 				</div>
 				`;
 			}
@@ -87,10 +127,14 @@ function <?= $currentFileName; ?>(data){
 				<div class="popup-img" style="background:url('${imgUrl}'); ">
 				`;
 			if ( imgName ){
-				img += `<div class='img_gradient w100h100p'>
+				img += `<div class='img_gradient w100h100p'>`;
+				img += (projectlink) ? `<a href='${projectlink}' class="link">` : '';
+				img += `
 							<div class="img-label">
 								${imgName}
-							</div>
+							</div>`;
+				img += (projectlink) ? `</a>` : '';
+				img += `
 						</div>
 						`;
 			}
@@ -115,6 +159,7 @@ function <?= $currentFileName; ?>(data){
 				${square}
 				${interior}
 				${price}
+				${projectsHtml}
 				${project}
 			</div>
 			

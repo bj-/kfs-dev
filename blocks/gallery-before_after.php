@@ -5,17 +5,35 @@
 <style>
 #<?= $bUID; ?> { 
 	position: relative; background-size: cover !important; background-position: center !important; height: fit-content;
-	& .fade { <?= $fade_style ?> width: 100%; height: 100%; }
+	& .fade { 
+		<?= $fade_style ?> width: 100%; height: 100%; 
+		& .title {
+			display:flex; 
+			grid-gap:20px;
+			padding-left:clamp(0px, 3vw, 50px); 
+			padding-right:clamp(0px, 3vw, 50px); 
 
-	& .title {display:flex; grid-gap:20px;}
-	& .title > h2 { font-size: <?= $bender_settings["size"]["title"] ?>; /*line-height: 80px; */ color: <?= $title_color ?>; margin-top: 20px; margin-bottom: 20px; font-weight: normal; }
-	& .text, 
-		& .title > h2 { flex: 1 1 0; }
-	& .text { font-size: 18px; line-height: 32px; }
-	& .title,
-		& .grid {padding-left:clamp(0px, 3vw, 50px); padding-right:clamp(0px, 3vw, 50px); }
+			& h2 { 
+				font-size: <?= $bender_settings["size"]["title"] ?>; 
+				/*line-height: 80px; */ 
+				color: <?= $title_color ?>; 
+				margin-top: 20px; 
+				margin-bottom: 20px; 
+				font-weight: normal; 
+				/* flex: 1 1 0; */ 
+			}
+			& .text {
+				font-size: 18px; 
+				line-height: 32px;
+				/* flex: 1 1 0; */ 
+			}
+		}
+	}
+
 	& .grid { 
 		padding-top:40px; 
+		padding-left:clamp(0px, 3vw, 50px); 
+		padding-right:clamp(0px, 3vw, 50px);
 		& .img_border { }
 		& .img_gradient { } 
 		& .img_label_font {}

@@ -13,8 +13,12 @@
 	& .logo {}
 	& .logo > a > img {max-height:80px; filter: invert(1);}
 	& .menu-content {display:flex; gap:30px;}
-	& .menu { display:flex; gap:30px; }
+	& .menu { display:flex; gap:30px; align-items: center; }
 
+	& .phone-desktop {
+		display: flex;
+		align-items: center;
+	}
 	& .phone-mobile { 
 		display:none; width:clamp(28px, 7vw, 35px); height: clamp(28px, 7vw, 35px);
 		& a { width:clamp(28px, 7vw, 35px); height:clamp(28px, 7vw, 35px); }
@@ -104,9 +108,7 @@
 		</span>
 		<p>
 			Сайт разработан в 
-			<a href="https://kirilloff.studio/" target="_blank">
-				<img src="/img/logo_kirilloff_studio.png" alt="Разработка сайта KIRILLOFF STUDIO" width="100">
-			</a>
+			<a class="link_color" href="https://kirilloff.studio/" target="_blank">kirilloff.studio</a>
 		</p>
 	</div>	
 </div>

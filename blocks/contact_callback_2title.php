@@ -8,8 +8,8 @@
 
 	& .title {display:flex; gap:20px; flex-direction:column;}
 	& .title > h2 { 
-		/* font-size: <?= $bender_settings["size"]["title"] ?>; */
-		font-size: clamp(30px, 4vw, 60px);
+		font-size: <?= $bender_settings["size"]["title"] ?>;
+		/* font-size: clamp(30px, 4vw, 60px); */
 		/*line-height: 80px; */ color: <?= $title_color ?>; margin-top: 20px; margin-bottom: 40px; font-weight: normal; }
 	& .text,
 		& .title > h2 { flex: 1 1 0; }
@@ -64,12 +64,20 @@
 				/* padding:15px 30px; */ 
 				padding: 20px 0px 20px 0px;
 				font-weight:400; 
-				color:rgb(0,0,0);
-				background:#eadc9e; 
+				color: <?= $bender_settings["colors"]["button"]["text"] ?>;
+				background: <?= $bender_settings["colors"]["button"]["bg"] ?>; 
 				/* border-radius:30px; */
 				font-family: "Montserrat", sans-serif; 
 				font-size: clamp(15px, 6vw, 28px);
 				line-height:30px;
+				cursor: pointer;
+				transition: 0.3s;
+				&:disabled {
+					background: <?= $bender_settings["colors"]["button"]["bg"] ?>;
+					cursor: not-allowed;
+					opacity: 0.3;
+					transition: 0.3s;
+				}		
 			}
 		}
 		& .policy {
@@ -96,7 +104,7 @@
 @media (max-width: 1000px) {
 	#<?= $bUID; ?> { 
 		& .title > h2 {
-			font-size: clamp(30px, 8vw, 80px);
+			/* font-size: clamp(30px, 8vw, 80px); */
 		}
 		& .content {flex-direction: column; gap:0px;}
 		& .content > div { width:100%; }

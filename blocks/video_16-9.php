@@ -5,19 +5,38 @@
 	<?= ( $block['bg']['type'] == "img" ) ? "background-size: cover !important; background-position: center !important;" : ""; ?>
 	<?= ( $block['bg']['type'] == "color" ) ? "background:" . $block['bg']['color'] . ";" : ""; ?>
 	
-	& .fade { <?= $fade_style ?> width: 100%; height: 100%; }
+	& .fade { 
+		<?= $fade_style ?> width: 100%; height: 100%; 
+		& .title {
+			display:flex; 
+			grid-gap:20px;
+			padding-left:clamp(0px, 3vw, 50px); 
+			padding-right:clamp(0px, 3vw, 50px); 
 
-	& .block { padding-left:clamp(0px, 3vw, 50px); padding-right:clamp(0px, 3vw, 50px); }
-	& .title {
-		& h2 { 
-			/* font-size: <?= $bender_settings["size"]["title"] ?>;  */
-			font-size: 2.8vw;
-			color: <?= $title_color ?>; 
-			margin-top: 20px; 
-			margin-bottom: 20px; 
-			font-weight: normal;
+			& h2 { 
+				font-size: <?= $bender_settings["size"]["title"] ?>; 
+				/*line-height: 80px; */ 
+				color: <?= $title_color ?>; 
+				margin-top: 20px; 
+				margin-bottom: 20px; 
+				font-weight: normal; 
+				/* flex: 1 1 0; */ 
+			}
+			& .text {
+				font-size: 18px; 
+				line-height: 32px;
+				/* flex: 1 1 0; */ 
+			}
+		}
+		& .content {
+			padding-left:clamp(0px, 3vw, 50px); 
+			padding-right:clamp(0px, 3vw, 50px); 
 		}
 	}
+
+
+
+
 	& .content { display: flex; gap: 20px; padding-top: 50px; flex-wrap: wrap; }
 	& .item { display: flex; justify-content: center; align-items: center; height: 100%; flex-direction: column; flex: 1 1 0; min-width: 240px; }
 	& .item	{ 
@@ -39,12 +58,11 @@
 
 </style>
 
-<div id="<?= $bUID ?>" class="wide" style="<?= ( $block['bg']['type'] == "img" ) ? "background: url(" . $block['bg'] . "); " : ""; ?>" >
+<div id="<?= $bUID ?>" class="nowide" style="<?= ( $block['bg']['type'] == "img" ) ? "background: url(" . $block['bg'] . "); " : ""; ?>" >
 	<div class="fade">
-		<div class="nowide">
-			<div class="block">
 				<div class="title">
 					<h2 class="<?= $block["title-effect"]["style"] ?>" <?= $block["title-effect"]["data"] ?>><?= $block["title"] ?></h2>
+					<p class="text"><?= $block['text'] ?></p>
 				</div>
 				<div class="content" id="<?= $bUID; ?>-carousel">
 					<?php foreach ($block["video"] as $key => $item): ?>
@@ -53,8 +71,7 @@
 					</div>
 					<?php endforeach; ?>
 				</div>
-			</div>
-		</div>
+
 	</div>
 </div>
 

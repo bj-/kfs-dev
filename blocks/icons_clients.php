@@ -10,8 +10,8 @@
 	& .block { padding-left:clamp(0px, 3vw, 50px); padding-right:clamp(0px, 3vw, 50px); }
 	& .title {
 		& h2 { 
-			/* font-size: <?= $bender_settings["size"]["title"] ?>;  */
-			font-size: 2.8vw;
+			font-size: <?= $bender_settings["size"]["title"] ?>;
+			/* font-size: 2.8vw; */
 			color: <?= $title_color ?>; 
 			margin-top: 20px; 
 			margin-bottom: 20px; 
@@ -81,7 +81,6 @@ Carousel(
 		Autoscroll
 	}).init();
 	
-</script>
 </script>
 <?php
 //echo "<pre>"; var_dump($block); echo "</pre>";

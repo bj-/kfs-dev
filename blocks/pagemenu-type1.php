@@ -7,7 +7,9 @@
 	& .title {display:flex; gap:20px;}
 	& .title > h2 { font-size: <?= $bender_settings["size"]["title"] ?>; /*line-height: 80px; */ color: <?= $title_color ?>; margin-top: 20px; margin-bottom: 20px; font-weight: normal; }
 	& .text,
-		& .title > h2 { flex: 1 1 0; }
+		& .title > h2 { 
+			/* flex: 1 1 0;*/
+		}
 	& .text { font-size: 18px; line-height: 32px; }
 	& .title,
 		& .grid {padding-left:clamp(0px, 3vw, 50px); padding-right:clamp(0px, 3vw, 50px); }
@@ -47,17 +49,25 @@
 			height: 100%;
 			background: rgba(7, 15, 31, 0.5); /* Цвет затемнения */
 			opacity: 1;
-			transition: opacity 0.6s ease;
+			transition: 0.6s ease;
 			/* z-index: 1; */
 			pointer-events: none; /* Чтобы клик проходил сквозь оверлей */
 		}
 		&:hover::after {
-			background: rgba(7, 15, 31, 0.7); /* Цвет затемнения */
+			background: rgba(7, 15, 31, 0.1); /* Цвет затемнения */
 			transition: 0.6s ease;
 		}
 
 		& .link {
-			position: absolute; width: 100%; height: 100%; /* кликабельная область */
+			position: absolute; 
+			width: 100%; height: 100%; /* кликабельная область */
+			opacity: 1;
+			transition: 1s ease;
+
+			&:hover {
+				opacity: 0;
+				transition: 0.5s ease;
+			}
 		}
 		
 		& .label { 
